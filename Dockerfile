@@ -1,21 +1,20 @@
 # Stage 1: Build
 FROM maven:3.8.5-openjdk-17 AS build
+WORKDIR /app
 
-# Hum seedha us folder mein jayenge jahan pom.xml hai
-WORKDIR /app/Hospital-Management-System
-
-# Poora code wahan copy karo
+# Poori ki poori repo copy karo
 COPY . .
 
-# Ab command chalegi kyunki pom.xml yahi hai
-RUN mvn clean package -DskipTests
+# Ab hum wahan se mvn chalayenge jahan pom.xml sach mein hai
+# Agar teri root repo mein 'Hospital-Management-System' folder ke andar pom.xml hai:
+RUN mvn -f HospitalManagementSystem/pom.xml clean package -DskipTests
 
 # Stage 2: Run
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
-# Build stage se JAR file uthao (path update kar diya hai)
-COPY --from=build /app/Hospital-Management-System/target/*.jar app.jar
+# JAR file ko sahi path se copy karo
+COPY --from=build /app/HospitalManagementSystem/target/*.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
