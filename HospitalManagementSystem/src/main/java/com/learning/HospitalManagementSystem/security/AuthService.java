@@ -5,9 +5,11 @@ import com.learning.HospitalManagementSystem.dto.LoginResponseDTO;
 import com.learning.HospitalManagementSystem.dto.SignupRequestDTO;
 import com.learning.HospitalManagementSystem.dto.SignupResponseDTO;
 import com.learning.HospitalManagementSystem.entity.Doctor;
+import com.learning.HospitalManagementSystem.entity.Patient;
 import com.learning.HospitalManagementSystem.entity.Role;
 import com.learning.HospitalManagementSystem.entity.User;
 import com.learning.HospitalManagementSystem.repository.DoctorRepository;
+import com.learning.HospitalManagementSystem.repository.PatientRepository;
 import com.learning.HospitalManagementSystem.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class AuthService {
     private final AuthUtil authUtil;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final PatientRepository patientRepository;
 
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
 
@@ -49,6 +52,18 @@ public class AuthService {
                 .username(signupRequestDTO.getUsername())
                 .password(passwordEncoder.encode(signupRequestDTO.getPassword()))
                 .role(Role.PATIENT).build());
+
+
+        Patient patient = new Patient();
+        patient.setName(signupRequestDTO.getName());
+        patient.setEmail(signupRequestDTO.getEmail());
+        patient.setBirthdate(signupRequestDTO.getBirthdate());
+        patient.setGender(signupRequestDTO.getGender());
+        patient.setBloodGroup(signupRequestDTO.getBloodGroup());
+
+        // 🚨 Sabse main kaam: Saved User ko Patient ke sath bind/link kar diya
+        patient.setUser(user);
+        patientRepository.save(patient);
         return new SignupResponseDTO(user.getId(), user.getUsername());
     }
 
